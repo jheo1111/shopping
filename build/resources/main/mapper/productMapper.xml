@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="springboot.sm.mapper.ProductMapper">
+<!--상품 추가하기-->
+    <insert id="addProduct" parameterType="GetProduct">
+        insert into products values(productId,#{uploadImageName},#{storeImageName},#{productName},#{productContents},#{price},#{quantity},#{category})
+    </insert>
+<!--상품 모두 보기-->
+    <select id="findProductAll" resultType="GetProduct">
+        select * from products
+    </select>
+<!--상품 상세보기-->
+    <select id="findProduct" resultType="GetProduct" parameterType="int">
+        select * from products where productId=#{productId}
+    </select>
+<!--이미지 가져오기-->
+    <select id="findImage" resultType="UploadFile">
+        select uploadImageName, storeImageName from products where productId=#{productId}
+    </select>
+<!--업데이트 -->
+    <update id="updateProduct" parameterType="GetProduct">
+        update products set
+        uploadImageName=#{uploadImageName},
+        storeImageName=#{storeImageName},
+        productName=#{productName},
+        productContents=#{productContents},
+        price=#{price},
+        quantity=#{quantity},
+        category=#{category}
+        where productId=#{productId}
+    </update>
+<!--페이징 -->
+    <select id="getListPaging" resultType="GetProduct">
+        select * from (select productId, uploadImageName, storeImageName, productName, productContents, price, quantity, category
+        from products
+        where category=#{category}
+        order by productId desc) as T1
+        limit #{cri.skip}, #{cri.amount}
+    </select>
+<!--개시물 총 개수-->
+    <select id="getTotal" resultType="int" parameterType="String">
+        select count(*) from products where category=#{category}
+    </select>
+
+    <select id="findProductByKeyword" parameterType="String" resultType="GetProduct">
+        select * from products where productName like concat('%', #{keyword}, '%') order by productId desc
+    </select>
+
+    <select id="relatedProduct" parameterType="String" resultType="GetProduct">
+        select * from products where category=#{category} order by productId desc limit 0,4
+    </select>
+
+    <insert id="addReview" parameterType="Review">
+        insert into review values(reviewId,#{loginId},#{productId},#{contents},#{createDate})
+    </insert>
+
+    <select id="allReview" resultType="Review" parameterType="int">
+        select * from review where productId=#{productId}
+    </select>
+
+    <update id="deleteReview" parameterType="int">
+        delete from review where reviewId=#{reviewId}
+    </update>
+
+</mapper>
